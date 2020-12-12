@@ -37,21 +37,14 @@ router.get('/getGame',(req, res) => {
 })
 
 router.post('/createGame', async(req, res, next) => {
-    moment.tz('2020-12-05', 'America/Chicago').format('z');    // CST
-    let today = moment(new Date()).format('YYYY-MM-DD[T00:00:00.000Z]');
-    let d = new Date();
-    d.setDate(today);
-    console.log("today: " + today);
-    
-    //TODO:Get Date and time from a form
     const game = new Game({
         _id: new mongoose.Types.ObjectId(),
         title: req.body.title,
-        // date: req.body.date,
-        date: today,
+        datetime: req.body.datetime,
         ageGroup: req.body.ageGroup,
         filmType: req.body.filmType,
         location: req.body.location,
+        fieldNumber: req.body.fieldNumber,
         address: req.body.address
     })
     try{

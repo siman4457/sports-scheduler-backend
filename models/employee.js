@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-//create schema for todo
 const EmployeeSchema = new Schema({
   _id: mongoose.Schema.Types.ObjectId,
   first_name: {
@@ -46,6 +45,10 @@ const EmployeeSchema = new Schema({
   canManualRecord: {
     type: Boolean,
     required: [true, 'canManualRecord is required']
+  },
+  //Array of dates the employee is available. Remove dates as games are assigned.
+  availability: {
+    type: [Date],
   }
 });
 

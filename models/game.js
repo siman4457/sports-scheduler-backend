@@ -1,16 +1,15 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-//create schema for todo
 const GameSchema = new Schema({
   _id: mongoose.Schema.Types.ObjectId,
   title: {
     type: String,
     required: [true, 'The game title field is required']
   },
-  date: {
+  datetime: {
       type: Date,
-      required: [true, 'The game date field is required']
+      required: [true, 'The game date and time field is required']
   },
   ageGroup:{
       type: String,
@@ -21,9 +20,15 @@ const GameSchema = new Schema({
   location:{
       type: String
   },
+  fieldNumber:{
+      type: String
+  },
   address:{
       type: String,
       required: [true, 'The game address field is required']
+  },
+  employeeId:{
+      type: mongoose.Schema.Types.ObjectId,
   }
 });
 

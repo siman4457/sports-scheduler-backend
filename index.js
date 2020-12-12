@@ -11,10 +11,12 @@ const port = process.env.PORT || 5000;
 
 const employeesRoutes = require("./routes/employees")
 const gamesRoutes = require("./routes/games")
+const optionsRoutes = require("./routes/options")
+const schedulesRoutes = require("./routes/schedules")
 
 
 //CONNECT TO DATABASE
-mongoose.connect(process.env.DB, { useUnifiedTopology: true } )
+mongoose.connect(process.env.DB, { useUnifiedTopology: true, useNewUrlParser: true  } )
   .then(() => {
       console.log(`Database connected successfully`)
     })
@@ -38,6 +40,8 @@ app.use(bodyParser.json());
 // app.use('/api', routes);
 app.use("/employees", employeesRoutes);
 app.use("/games", gamesRoutes);
+app.use("/options", optionsRoutes);
+app.use("/schedules",schedulesRoutes);
 
 app.use((err, req, res, next) => {
   console.log(err);

@@ -2,6 +2,7 @@ const express = require ('express');
 const router = express.Router();
 const Employee = require('../models/employee');
 const mongoose = require('mongoose');
+const { response } = require('express');
 
 router.get('/getEmployees', (req, res, next) => {
     Employee.find({}, function(err,employees){
@@ -74,6 +75,27 @@ router.post('/createEmployee', async(req, res, next) => {
     }
     
 });
+
+router.get('/getAvailability',(req, res, next) => {
+    Employee.find({}, function(err, employees){
+        if(!err){
+            response = []
+            employees.forEach(employee => {
+                let name = eployee.first_name + employee.last_name
+                response.push({[name]: employee.availability})
+            })
+            res.status(200).json({
+                message: "GET request to /getAvailability succeeded", 
+                availability: response
+            })
+        }
+        else{
+            res.status(424).json({
+                message: "GET request to /getAvailability failed."
+            })
+        }
+    })
+})
 
 router.delete('/employees/:id', (req, res, next) => {
     Employee.findOneAndDelete({"_id": req.params.id})
