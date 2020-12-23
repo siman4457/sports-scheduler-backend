@@ -8,7 +8,8 @@ const moment = require('moment-timezone');
 router.get('/autoAssign', async (req, res, next) => {
     try{
         const games = await Game.find({})
-        const employees = await Employee.find({})
+        const employees = await Employee.find({first_name: "Siman"})
+        console.log(employees)
         
         
     }catch(err){

@@ -56,7 +56,6 @@ router.post('/createEmployee', async(req, res, next) => {
         await Employee.validate(employee);
         
         employee.save().then(result=>{
-            // console.log(result)
             res.status(201).json({
                 message: "POST request to /createEmployee succeeded",
                 createdEmployee: employee
@@ -92,6 +91,55 @@ router.get('/getAvailability',(req, res, next) => {
         else{
             res.status(424).json({
                 message: "GET request to /getAvailability failed."
+            })
+        }
+    })
+});
+
+router.post('/createAvailability', async (req, res, next) => {
+    let employee = Employee.findById({_id: req.body.employee._id}, function(err, employee){
+        if(!err){
+            let new_availability = req.body.new_availability
+            if(!employee.availability.includes(new_availability)){
+                employee.availability.push(new_availability)
+                employee.save().then( result => {
+                    res.status(201).json({
+                        message: "POST request to /createAvailability succeeded",
+                        availability: employee.availability
+                    })})
+                }
+            else{
+                console.log("THIS ERROR")
+                res.sendStatus(424).json({
+                    message: "POST request to /createAvailability failed. Duplicate date was found.",
+                })
+            }
+        }
+        else{
+            console.log(err)
+            res.status(424).json({
+                message: "POST request to /createAvailability failed",
+                err: err
+            })
+        }
+    })
+    
+})
+
+router.post('/removeAvailability', (req, res, next) => {
+    const availabilityToRemove = req.body.availability
+    const result = Employee.updateOne({_id: req.body.employee._id}, {$pullAll:{availability:[availabilityToRemove]}}, function(err, docs){
+        if(!err){
+            res.status(201).json({
+                message: "POST request to /removeAvailability succeeded.",
+                
+            })
+        }
+        else{
+            res.status(400).json({
+                message: "POST request to /removeAvailability failed.",
+                err: err
+                
             })
         }
     })
