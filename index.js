@@ -41,7 +41,7 @@ app.use(bodyParser.json());
 app.use("/employees", employeesRoutes);
 app.use("/games", gamesRoutes);
 app.use("/options", optionsRoutes);
-app.use("/schedules",schedulesRoutes);
+app.use("/schedule",schedulesRoutes);
 
 app.use((err, req, res, next) => {
   console.log(err);

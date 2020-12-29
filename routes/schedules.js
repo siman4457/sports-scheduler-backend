@@ -15,9 +15,52 @@ router.get('/autoAssign', async (req, res, next) => {
     }catch(err){
         console.log(err)
     }
-    // console.log("games", gs)
+
 
 });
+
+router.post('/assignGame', async (req, res, next) => {
+    const game = req.body.game;
+    const employee = req.body.employee;
+    
+    //Check if employee is available the same day as the game
+
+    //Check if the employee is able to film that type of game
+
+    //Check if the employee will be able to make it to the game on time
+
+})
+
+router.post('/findAvailableEmployees', async(req, res, next) => {
+    const availableEmployees = []
+    const gameStart = new Date(req.body.start).toDateString();
+    const gameEnd = new Date(req.body.end).toDateString();
+    await Employee.find({}, function(err, employees){
+        try{
+            employees.forEach(employee => {
+                let availability = employee.availability.map(x => (
+                    x.toDateString()
+                ));
+                
+                if(availability.includes(gameStart)){
+                    availableEmployees.push(employee)
+                }
+            })
+
+            res.status(200).json({
+                message: "Request to /findAvailableEmployees was successful.",
+                availableEmployees: availableEmployees
+            })
+        }
+        catch{
+            res.status(424).json({
+                message: "Request to /findAvailableEmployees failed.",
+                err: err
+            })
+        }
+    })
+    
+})
 
 
 module.exports = router;
