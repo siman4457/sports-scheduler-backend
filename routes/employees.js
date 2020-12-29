@@ -128,7 +128,7 @@ router.post('/createAvailability', async (req, res, next) => {
 
 router.post('/removeAvailability', (req, res, next) => {
     const availabilityToRemove = req.body.availability
-    const result = Employee.updateOne({_id: req.body.employee._id}, {$pullAll:{availability:[availabilityToRemove]}}, function(err, docs){
+    const result = Employee.updateOne({_id: req.body.employee._id}, {$pullAll:{availability:[availabilityToRemove]}}, function(err, result){
         if(!err){
             res.status(201).json({
                 message: "POST request to /removeAvailability succeeded.",

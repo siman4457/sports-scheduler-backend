@@ -33,8 +33,10 @@ router.post('/assignGame', async (req, res, next) => {
 
 router.post('/findAvailableEmployees', async(req, res, next) => {
     const availableEmployees = []
-    const gameStart = new Date(req.body.start).toDateString();
-    const gameEnd = new Date(req.body.end).toDateString();
+    const gameStartDate = new Date(req.body.start).toDateString();
+    const gameEndDate = new Date(req.body.end).toDateString();
+
+    console.log('game start raw: ', req.body.start);
     await Employee.find({}, function(err, employees){
         try{
             employees.forEach(employee => {
@@ -42,7 +44,14 @@ router.post('/findAvailableEmployees', async(req, res, next) => {
                     x.toDateString()
                 ));
                 
-                if(availability.includes(gameStart)){
+                if(availability.includes(gameStartDate)){
+                    //TODO: Check if game has already been assigned for the given time slot.
+                    // Also check if employee has enough time to set up or travel to the given location
+                    // if the location is not the same
+
+                    // employee.games.forEach(game => {
+                    //     console.log('game datetime: ', game.datetime)
+                    // })
                     availableEmployees.push(employee)
                 }
             })
@@ -60,6 +69,46 @@ router.post('/findAvailableEmployees', async(req, res, next) => {
         }
     })
     
+})
+
+router.post('/scheduleGame', async(req, res, next) => {
+    //******TODO: make sure you dont save duplicates*****
+    try{
+        const gameId = req.body.gameId;
+        const employeeId = req.body.employeeId;
+
+        await Game.updateOne({_id: gameId}, {employeeId: employeeId}, function(err, result){
+            if(err){
+                res.status(424).json({
+                    message: "Request to /scheduleGame failed.",
+                    err: err
+                })
+            }
+        })
+
+        await Employee.updateOne({_id: employeeId}, { $addToSet: { games: gameId } }, function(err, result){
+            if(!err){
+                res.status(201).json({
+                    message: "Request to /scheduleGame was successful."
+                })
+            }
+            else{
+                res.status(424).json({
+                        message: "Request to /scheduleGame failed.",
+                        err: err
+                    })
+                }
+        })
+    }
+    catch(err){
+        if(err){
+            res.status(424).json({
+                    message: "Request to /scheduleGame failed.",
+                    err: err
+                })
+            }
+    }
+
 })
 
 

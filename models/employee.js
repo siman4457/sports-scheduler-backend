@@ -49,6 +49,9 @@ const EmployeeSchema = new Schema({
   //Array of dates the employee is available. Remove dates as games are assigned.
   availability: {
     type: [Date],
+  },
+  games: {
+    type: [mongoose.Schema.Types.ObjectId]
   }
 });
 
