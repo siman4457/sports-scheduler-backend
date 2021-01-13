@@ -72,41 +72,60 @@ router.post('/findAvailableEmployees', async(req, res, next) => {
 })
 
 router.post('/scheduleGame', async(req, res, next) => {
-    //******TODO: make sure you dont save duplicates*****
     try{
         const gameId = req.body.gameId;
         const employeeId = req.body.employeeId;
 
-        await Game.updateOne({_id: gameId}, {employeeId: employeeId}, function(err, result){
-            if(err){
-                res.status(424).json({
-                    message: "Request to /scheduleGame failed.",
-                    err: err
+        let game = await Game.findById({_id: gameId});
+        let newEmployee = await Employee.findById({_id:employeeId});
+        
+        //Case where game has no employee assigned to it
+        if(!("employeeId" in game) || game.employeeId === undefined){
+            console.log("first time assigning")
+            game.employeeId = employeeId;
+            await Employee.updateOne({_id:employeeId}, { $addToSet: { games: gameId } });
+            await game.save()
+            .then(
+                res.status(200).json({
+                    message: "Request to /scheduleGame succeeded."
                 })
-            }
-        })
+            )
+        }
+        
+        //Case where we are reassigning to a new employee
+        else if(game.employeeId && (String(game.employeeId) !== employeeId)){
+            console.log("switching employee")
+            const oldEmployeeId = game.employeeId;
+            await Employee.updateOne({_id:oldEmployeeId}, { $pull: { games: gameId } });
+            game.employeeId = employeeId; //Remove old employee from game
+            await Employee.updateOne({_id:employeeId}, { $addToSet: { games: gameId } });
+            await game.save()
+            .then(
+                res.status(200).json({
+                    message: "Request to /scheduleGame succeeded."
+                })
+            )
+        }
+        
+        else if(game.employeeId && (String(game.employeeId) == employeeId)){
+            res.status(200).json({
+                message: "No changes were made."
+            })
+        }
 
-        await Employee.updateOne({_id: employeeId}, { $addToSet: { games: gameId } }, function(err, result){
-            if(!err){
-                res.status(201).json({
-                    message: "Request to /scheduleGame was successful."
-                })
-            }
-            else{
-                res.status(424).json({
-                        message: "Request to /scheduleGame failed.",
-                        err: err
-                    })
-                }
-        })
+        else{
+            res.status(400).json({
+                message: "Unknown condition in /scheduleGame."
+            })
+        }
     }
     catch(err){
+        console.log(err)
         if(err){
             res.status(424).json({
                     message: "Request to /scheduleGame failed.",
                     err: err
-                })
-            }
+            })}
     }
 
 })
