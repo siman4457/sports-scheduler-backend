@@ -1,24 +1,31 @@
 const express = require('express');
+// const cors = require('cors');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const path = require('path');
-const morgan = require('morgan')
+const morgan = require('morgan');
 require('dotenv').config();
 
 
 const app = express();
+// const corsOptions = {
+//   origin: true,
+//   credentials: true
+// };
+// app.options('*', cors(corsOptions));
+// app.use(cors());
+
 const port = process.env.PORT || 5000;
 
-const employeesRoutes = require("./routes/employees")
-const gamesRoutes = require("./routes/games")
-const optionsRoutes = require("./routes/options")
-const schedulesRoutes = require("./routes/schedules")
+const employeesRoutes = require("./routes/employees");
+const gamesRoutes = require("./routes/games");
+const optionsRoutes = require("./routes/options");
+const schedulesRoutes = require("./routes/schedules");
 
 
 //CONNECT TO DATABASE
 mongoose.connect(process.env.DB, { useUnifiedTopology: true, useNewUrlParser: true  } )
   .then(() => {
-      console.log(`Database connected successfully`)
+      console.log(`Database connected successfully`);
     })
   .catch(err => console.log(err));
 
@@ -54,7 +61,7 @@ app.use((req, res, next) => {
     next(error);
   });
 
-app.use((error, req, res, next) => {
+app.use((error, req, res) => {
     res.status(error.status || 500);
     res.json({
       error: {
@@ -64,5 +71,6 @@ app.use((error, req, res, next) => {
   });
   
 app.listen(port, () => {
-console.log(`Server running on port ${port}`)
+console.log(`Web server running on port ${port}`);
+// console.log(`CORS-enabled web server running on port ${port}`);
 });
