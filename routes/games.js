@@ -46,12 +46,12 @@ router.post('/createGame', async(req, res, next) => {
         location: req.body.location,
         fieldNumber: req.body.fieldNumber,
         address: req.body.address
-    })
+    });
     try{
         //Validate request
         await Game.validate(game);
         
-        game.save().then(result=>{
+        game.save().then(result => {
             // console.log(result)
             res.status(201).json({
                 message: "POST request to /createGame succeeded",

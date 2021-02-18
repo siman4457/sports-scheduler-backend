@@ -18,6 +18,10 @@ const EmployeeSchema = new Schema({
     type: String,
     required: [true, 'An address is required']
   },
+  phoneNumber: {
+    type: Number,
+    require: [true, 'A phone number is required']
+  },
   canSetUp: {
     type: Boolean,
     required: [true, 'canSetUp is required']

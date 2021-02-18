@@ -71,7 +71,6 @@ function isOverlapping(dateRanges){
         let overlap = (prev >= cur);
 
         if(overlap){
-            console.log("Overlapping!");
             return true;
         }
     }
@@ -79,7 +78,6 @@ function isOverlapping(dateRanges){
 }
 
 async function isAvailableAtTime(employee, start, end){
-    console.log("isAvailableAtTime Fired");
     try{
         let available = true;
         await getGames(employee.games)
@@ -114,7 +112,7 @@ async function isAvailableAtTime(employee, start, end){
         .catch(err =>{
             console.error("Error in isAvailableAtTime: ", err);
         });
-        console.log("isAvailableAtTime Finished - available: ", available);
+        
         return available;
     }
     catch(error){
@@ -160,12 +158,10 @@ router.post('/findAvailableEmployees', async(req, res) => {
             promises.push(isAvailable(employee, start, end));
         });
         
-
         Promise.all(promises)
         .then((results)=>{
             availableEmployees = results.filter(x => x !== undefined);
             
-
             if(availableEmployees.length < 1){
                 console.log("No available employees");
                 let none = {

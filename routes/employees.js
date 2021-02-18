@@ -26,51 +26,51 @@ router.get('/getEmployee',(req, res) => {
             res.status(200).json({
                 message: "GET request to getEmployee succeeded",
                 employee: employee
-            })
+            });
         }
         else{
             res.status(424).json({
                 message: "GET request to getEmployee failed"
-            })
+            });
         }
-    })
-})
+    });
+});
 
-router.post('/createEmployee', async(req, res, next) => {
+router.post('/createEmployee', async(req, res) => {
     const employee = new Employee({
         _id: new mongoose.Types.ObjectId(),
         first_name: req.body.first_name,
         last_name: req.body.last_name,
         age: req.body.age,
         address: req.body.address,
+        phoneNumber: req.body.phoneNumber.replace(/\s/g,''),
         canSetUp: req.body.canSetUp,
         needsTraining: req.body.needsTraining,
         canFilmSoccer: req.body.canFilmSoccer,
         canFilmFootball: req.body.canFilmFootball,
         canLiveStream: req.body.canLiveStream,
         canVeo: req.body.canVeo,
-        canManualRecord: req.body.canManualFilm
-    })
+        canManualRecord: req.body.canManualRecord
+    });
+
     try{
         //Validate request
-        await Employee.validate(employee);
+        // await Employee.validate(employee);
         
-        employee.save().then(result=>{
+        employee.save().then(()=>{
             res.status(201).json({
                 message: "POST request to /createEmployee succeeded",
                 createdEmployee: employee
             });
-        })
+        });
         
     }
     catch(err){
         err instanceof mongoose.Error.ValidationError;
-        Object.keys(err.errors)
-        
-        // console.log(err)
+        Object.keys(err.errors);
         res.status(424).json({
             message: "POST request to /createEmployee failed"
-        })
+        });
     }
     
 });
@@ -96,38 +96,38 @@ router.get('/getAvailability',(req, res, next) => {
     })
 });
 
-router.post('/createAvailability', async (req, res, next) => {
-    let employee = Employee.findById({_id: req.body.employee._id}, function(err, employee){
+router.post('/createAvailability', async (req, res) => {
+    Employee.findById({_id: req.body.employee._id}, function(err, employee){
         if(!err){
-            let new_availability = req.body.new_availability
+            let new_availability = req.body.new_availability;
             if(!employee.availability.includes(new_availability)){
-                employee.availability.push(new_availability)
-                employee.save().then( result => {
+                employee.availability.push(new_availability);
+                employee.save().then( () => {
                     res.status(201).json({
                         message: "POST request to /createAvailability succeeded",
                         availability: employee.availability
-                    })})
+                    });
+                });
                 }
             else{
-                console.log("THIS ERROR")
                 res.sendStatus(424).json({
                     message: "POST request to /createAvailability failed. Duplicate date was found.",
-                })
+                });
             }
         }
         else{
-            console.log(err)
+            console.log(err);
             res.status(424).json({
                 message: "POST request to /createAvailability failed",
                 err: err
-            })
+            });
         }
-    })
+    });
     
-})
+});
 
-router.post('/removeAvailability', (req, res, next) => {
-    const availabilityToRemove = req.body.availability
+router.post('/removeAvailability', (req, res) => {
+    const availabilityToRemove = req.body.availability;
     const result = Employee.updateOne({_id: req.body.employee._id}, {$pullAll:{availability:[availabilityToRemove]}}, function(err, result){
         if(!err){
             res.status(201).json({
