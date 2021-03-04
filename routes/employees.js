@@ -15,17 +15,22 @@ router.get('/getEmployees', (req, res, next) => {
     else{
         res.status(424).json({
             message: "GET request to /getEmployees failed"
-        })
+        });
     }
     });
 });
 
-router.get('/getEmployee',(req, res) => {
-    Employee.find({_id:req.body._id}, function(err, employee){
-        if(!err){
+router.get('/getEmployee/:id',(req, res) => {
+    Employee.findById(req.params.id, function(err, employee){
+        if(!err && employee !== null){
             res.status(200).json({
                 message: "GET request to getEmployee succeeded",
                 employee: employee
+            });
+        }
+        else if(!err && employee === null){
+            res.status(404).json({
+                message: "404: Employee not found"
             });
         }
         else{
@@ -80,20 +85,20 @@ router.get('/getAvailability',(req, res, next) => {
         if(!err){
             response = []
             employees.forEach(employee => {
-                let name = eployee.first_name + employee.last_name
-                response.push({[name]: employee.availability})
-            })
+                let name = employee.first_name + employee.last_name;
+                response.push({[name]: employee.availability});
+            });
             res.status(200).json({
                 message: "GET request to /getAvailability succeeded", 
                 availability: response
-            })
+            });
         }
         else{
             res.status(424).json({
                 message: "GET request to /getAvailability failed."
-            })
+            });
         }
-    })
+    });
 });
 
 router.post('/createAvailability', async (req, res) => {
@@ -133,22 +138,76 @@ router.post('/removeAvailability', (req, res) => {
             res.status(201).json({
                 message: "POST request to /removeAvailability succeeded.",
                 
-            })
+            });
         }
         else{
             res.status(400).json({
                 message: "POST request to /removeAvailability failed.",
                 err: err
                 
-            })
+            });
         }
-    })
-})
+    });
+});
 
-router.delete('/employees/:id', (req, res, next) => {
-    Employee.findOneAndDelete({"_id": req.params.id})
-    .then(data => res.json(data))
-    .catch(next)
+router.post("/updateEmployee", async (req, res) => {
+    try{
+        console.log("REQUEST: ");
+        console.log(req.body);
+        console.log("");
+        let result = await Employee.updateOne(
+            { _id: req.body._id},
+            { $set: {
+                first_name: req.body.first_name,    
+                last_name: req.body.last_name,
+                age: req.body.age,
+                address: req.body.address,
+                canSetUp: req.body.canSetUp,
+                needsTraining: req.body.needsTraining,
+                canFilmSoccer: req.body.canFilmSoccer,
+                canFilmFootball: req.body.canFilmFootball,
+                canLiveStream: req.body.canLiveStream,
+                canVeo: req.body.canVeo,
+                canManualRecord: req.body.canManualRecord,
+                phoneNumber: req.body.phoneNumber
+                } 
+            }
+        );
+        console.log('UPDATE RESULTS:');
+        console.log(result);
+
+        res.status(200).json({
+                message: "Sucessfully updated"
+            });
+    }
+    catch(err){
+        console.log("Error: ", err);
+        res.status(424).json({
+            message: "POST request to /updateEmployee failed",
+            err: err
+        });
+
+    }
+});
+
+router.delete('/deleteEmployee/:id', (req, res) => {
+    console.log("Delete triggered");
+    console.log(req.params);
+    Employee.findOneAndDelete({"_id": req.params.id}, function(res, err){
+        if(!err){
+            res.status(200).json({
+                message: "Sucessfully deleted"
+            });
+        }
+        else{
+            console.log(err);
+            res.status(424).json({
+                message: "POST request to /createAvailability failed",
+                err: err
+            });
+        }
+    });
+    
 });
 
 module.exports = router;

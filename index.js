@@ -1,21 +1,12 @@
 const express = require('express');
-// const cors = require('cors');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const morgan = require('morgan');
 require('dotenv').config();
 
-
 const app = express();
-// const corsOptions = {
-//   origin: true,
-//   credentials: true
-// };
-// app.options('*', cors(corsOptions));
-// app.use(cors());
 
-const port = process.env.PORT || 5000;
-
+//ROUTES
 const employeesRoutes = require("./routes/employees");
 const gamesRoutes = require("./routes/games");
 const optionsRoutes = require("./routes/options");
@@ -33,18 +24,14 @@ mongoose.connect(process.env.DB, { useUnifiedTopology: true, useNewUrlParser: tr
 mongoose.Promise = global.Promise;
 
 app.use(morgan('dev'));
-
+app.use(bodyParser.json());
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
 
-app.use(bodyParser.json());
-
-
 // Routes which should handle requests
-// app.use('/api', routes);
 app.use("/employees", employeesRoutes);
 app.use("/games", gamesRoutes);
 app.use("/options", optionsRoutes);
@@ -68,8 +55,9 @@ app.use((error, req, res) => {
         message: error.message
       }
     });
-  });
-  
+  });  
+
+const port = process.env.PORT || 5000;
 app.listen(port, () => {
 console.log(`Web server running on port ${port}`);
 // console.log(`CORS-enabled web server running on port ${port}`);
