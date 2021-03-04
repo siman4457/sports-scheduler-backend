@@ -3,6 +3,7 @@ const router = express.Router();
 const Employee = require('../models/employee');
 const mongoose = require('mongoose');
 const { response } = require('express');
+const Game = require('../models/game');
 
 router.get('/getEmployees', (req, res, next) => {
     Employee.find({}, function(err,employees){
@@ -190,23 +191,43 @@ router.post("/updateEmployee", async (req, res) => {
     }
 });
 
-router.delete('/deleteEmployee/:id', (req, res) => {
-    console.log("Delete triggered");
-    console.log(req.params);
-    Employee.findOneAndDelete({"_id": req.params.id}, function(res, err){
-        if(!err){
-            res.status(200).json({
-                message: "Sucessfully deleted"
-            });
-        }
-        else{
-            console.log(err);
-            res.status(424).json({
-                message: "POST request to /createAvailability failed",
-                err: err
-            });
-        }
-    });
+router.delete('/deleteEmployee/:id', async (req, res) => {
+    try{
+        //First, free up games currently assigned to this emplpoyee
+        let employee = await Employee.findById({"_id": req.params.id});
+        let game_ids = employee.games;
+
+        await Game.updateMany(
+            {_id: { $in: game_ids}},
+            {$unset: {
+                employeeId: ""
+            }}
+        );
+
+        //Second, delete this employee
+        await Employee.findOneAndDelete({"_id": req.params.id}, function(err){
+            if(!err){
+                res.status(200).json({
+                    message: "Sucessfully deleted",
+                    games_freed: employee.games,
+                });
+            }
+            else{
+                console.log("ERROR: ", err);
+                res.status(424).json({
+                    message: "POST request to /createAvailability failed",
+                    err: err
+                });
+            }
+        });
+    }
+    catch(err){
+        console.log("ERROR: ", err);
+        res.status(424).json({
+            message: "POST request to /createAvailability failed",
+            err: err
+        });
+    }
     
 });
 

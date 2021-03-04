@@ -231,6 +231,7 @@ router.post('/scheduleGame', async(req, res) => {
         }
 
         else{
+            console.log("Error: Unknown condition in /scheduleGame");
             res.status(400).json({
                 message: "Unknown condition in /scheduleGame."
             });
