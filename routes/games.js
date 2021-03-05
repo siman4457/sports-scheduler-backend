@@ -3,6 +3,7 @@ const router = express.Router();
 const Game = require('../models/game');
 const mongoose = require('mongoose');
 const moment = require('moment-timezone');
+const Employee = require('../models/employee');
 
 router.get('/getGames', (req, res, next) => {
     Game.find({}, function(err,games){
@@ -57,25 +58,44 @@ router.post('/createGame', async(req, res, next) => {
                 message: "POST request to /createGame succeeded",
                 createdGame: game
             });
-        })
+        });
         
     }
     catch(err){
         err instanceof mongoose.Error.ValidationError;
-        Object.keys(err.errors)
+        Object.keys(err.errors);
         
-        // console.log(err)
+        console.log("Error in /createGame", err);
         res.status(424).json({
             message: "POST request to /createGame failed"
-        })
+        });
     }
     
 });
 
-router.delete('/games/:id', (req, res, next) => {
-    Game.findOneAndDelete({"_id": req.params.id})
-    .then(data => res.json(data))
-    .catch(next)
+router.delete('/deleteGame', async (req, res) => {
+    try{
+        
+        let game = await Game.findById({"_id":req.body.id});
+        let employeeId = game.employeeId;
+
+        await Employee.updateOne(
+            {_id: employeeId},
+            {$pull: { games: {$in: game._id}}}
+        );
+
+        await Game.findOneAndDelete({_id: game._id});
+
+        res.status(200).json({
+            message: `Successfully deleted ${game.title}`
+        });
+    }
+    catch(err){
+        console.log("Error in /deleteGame: ", err);
+        res.status(424).json({
+            message: "Error in /deleteGame"
+        });
+    }
 });
 
 module.exports = router;
