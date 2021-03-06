@@ -2,7 +2,6 @@ const express = require ('express');
 const router = express.Router();
 const Game = require('../models/game');
 const mongoose = require('mongoose');
-const moment = require('moment-timezone');
 const Employee = require('../models/employee');
 
 router.get('/getGames', (req, res, next) => {
@@ -15,27 +14,29 @@ router.get('/getGames', (req, res, next) => {
     }
     else{
         res.status(424).json({
-            message: "GET request to /getGames failed"
-        })
+            message: "GET request to /getGames failed",
+            error: err
+        });
     }
     });
 });
 
-router.get('/getGame',(req, res) => {
-    Game.find({_id:req.body._id}, function(err, game){
+router.get('/getGame/:id',(req, res) => {
+    Game.findById(req.params.id, function(err, game){
         if(!err){
             res.status(200).json({
                 message: "GET request to getGame succeeded",
                 game: game
-            })
+            });
         }
         else{
             res.status(424).json({
-                message: "GET request to getGame failed"
-            })
+                message: "GET request to getGame failed",
+                error: err
+            });
         }
-    })
-})
+    });
+});
 
 router.post('/createGame', async(req, res, next) => {
     const game = new Game({
@@ -67,10 +68,40 @@ router.post('/createGame', async(req, res, next) => {
         
         console.log("Error in /createGame", err);
         res.status(424).json({
-            message: "POST request to /createGame failed"
+            message: "POST request to /createGame failed",
+            error: err
         });
     }
     
+});
+
+router.post('/updateGame', async (req, res) => {
+    try{
+        await Game.updateOne(
+            {_id: req.body._id},
+            { $set: {
+                title: req.body.title,
+                fieldNumber: req.body.fieldNumber,
+                location: req.body.location,
+                address: req.body.address,
+                ageGroup: req.body.ageGroup,
+                filmType: req.body.filmType
+            }}
+        );
+
+        res.status(200).json({
+            message: "Successfully updated game"
+        });
+
+    }
+    catch(err){
+        console.log("Error in /updateGame: ", err);
+        res.status(424).json({
+            message: "Error in /updateGame",
+            error: err
+        });
+    }
+
 });
 
 router.delete('/deleteGame', async (req, res) => {
@@ -93,9 +124,12 @@ router.delete('/deleteGame', async (req, res) => {
     catch(err){
         console.log("Error in /deleteGame: ", err);
         res.status(424).json({
-            message: "Error in /deleteGame"
+            message: "Error in /deleteGame",
+            error: err
         });
     }
 });
+
+
 
 module.exports = router;

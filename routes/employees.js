@@ -153,10 +153,7 @@ router.post('/removeAvailability', (req, res) => {
 
 router.post("/updateEmployee", async (req, res) => {
     try{
-        console.log("REQUEST: ");
-        console.log(req.body);
-        console.log("");
-        let result = await Employee.updateOne(
+        await Employee.updateOne(
             { _id: req.body._id},
             { $set: {
                 first_name: req.body.first_name,    
@@ -171,11 +168,9 @@ router.post("/updateEmployee", async (req, res) => {
                 canVeo: req.body.canVeo,
                 canManualRecord: req.body.canManualRecord,
                 phoneNumber: req.body.phoneNumber
-                } 
+                }
             }
         );
-        console.log('UPDATE RESULTS:');
-        console.log(result);
 
         res.status(200).json({
                 message: "Sucessfully updated"
