@@ -84,7 +84,7 @@ router.post('/createEmployee', async(req, res) => {
 router.get('/getAvailability',(req, res, next) => {
     Employee.find({}, function(err, employees){
         if(!err){
-            response = []
+            let response = [];
             employees.forEach(employee => {
                 let name = employee.first_name + employee.last_name;
                 response.push({[name]: employee.availability});
@@ -224,6 +224,25 @@ router.delete('/deleteEmployee/:id', async (req, res) => {
         });
     }
     
+});
+
+
+router.get('/getGamesByEmployee/:id', async (req, res) => {
+    try{
+        let employee = await Employee.findById({"_id": req.params.id});
+        let game_ids = employee.games;
+        let games = await Game.find({ _id: { $in: game_ids }});
+        res.status(200).json(
+            {games: games}
+        );
+    }
+    catch(err){
+        console.log("ERROR:", err);
+        res.status(424).json({
+            message:"GET request to /getGamesByEmployee failed",
+            err: err
+        });
+    }
 });
 
 module.exports = router;

@@ -12,7 +12,6 @@ const gamesRoutes = require("./routes/games");
 const optionsRoutes = require("./routes/options");
 const schedulesRoutes = require("./routes/schedules");
 
-
 //CONNECT TO DATABASE
 mongoose.connect(process.env.DB, { useUnifiedTopology: true, useNewUrlParser: true  } )
   .then(() => {
